@@ -1,0 +1,250 @@
+:root {
+  --bg-sky: #0a0e1a;
+  --bg-panel: #111827;
+  --text-dim: #8b93a7;
+  --accent: #ffd27a;
+  --bg-color: #000000;  /* BG Color コントロールで上書きされる */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg-color);
+  color: #e6e9f2;
+  font-family: 'Menlo', 'Consolas', monospace;
+  height: 100%;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+  transition: background 120ms ease;
+}
+
+#app {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    "stage"
+    "controls";
+  height: 100vh;
+  height: 100dvh;
+}
+
+#stage {
+  grid-area: stage;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-color);
+  overflow: hidden;
+  padding: 10px;  /* BG 色が常に見えるよう細いフレームを確保 */
+  transition: background 120ms ease;
+}
+
+#night-canvas {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  image-rendering: pixelated;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+  filter:
+    saturate(var(--sat, 100%))
+    brightness(var(--bri, 100%))
+    contrast(var(--con, 100%))
+    hue-rotate(var(--hue, 0deg));
+}
+
+#status {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* パネル上端のつまみ (常時表示、クリックで開閉) */
+#controls-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: transparent;
+  color: var(--text-dim);
+  border: none;
+  border-bottom: 1px solid #1f2937;
+  padding: 8px 0;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+#controls-toggle:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: #e6e9f2;
+}
+
+#controls-toggle .toggle-arrow {
+  display: inline-block;
+  transition: transform 240ms ease;
+}
+
+body.controls-hidden #controls-toggle .toggle-arrow {
+  transform: rotate(180deg);
+}
+
+body.controls-hidden #controls-toggle {
+  border-bottom-color: transparent;
+}
+
+#controls {
+  grid-area: controls;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border-top: 1px solid #1f2937;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+#controls-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 24px;
+  padding-bottom: calc(14px + env(safe-area-inset-bottom));
+  max-height: 520px;
+  overflow: hidden;
+  transition:
+    max-height 320ms cubic-bezier(0.4, 0, 0.2, 1),
+    padding 320ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.controls-hidden #controls-body {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+#controls .row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+#controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+#controls input[type="range"] {
+  width: 130px;
+  accent-color: var(--accent);
+}
+
+#controls select,
+#controls input[type="text"] {
+  background: #0a0e1a;
+  border: 1px solid #1f2937;
+  color: #e6e9f2;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+#controls select { min-width: 160px; }
+#controls input[type="text"] { width: 180px; }
+
+#controls input[type="color"] {
+  width: 42px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid #1f2937;
+  background: transparent;
+  cursor: pointer;
+}
+
+#controls .color-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ビジュアル行は視覚的に区切る */
+#controls .row--visual {
+  border-top: 1px solid #1f2937;
+  padding-top: 10px;
+  margin-top: 2px;
+}
+
+#generate {
+  margin-left: auto;
+  background: var(--accent);
+  color: #1a1410;
+  border: none;
+  padding: 10px 22px;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 0.2em;
+  touch-action: manipulation;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+#generate:disabled {
+  opacity: 0.35;
+  cursor: wait;
+}
+
+/* モバイル */
+@media (max-width: 768px) {
+  #night-canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  #controls-body {
+    padding: 10px 12px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    gap: 8px;
+  }
+
+  #controls .row {
+    gap: 10px;
+  }
+
+  #controls label {
+    flex: 1 1 calc(50% - 6px);
+    font-size: 10px;
+  }
+
+  #controls input[type="range"] {
+    width: 100%;
+    height: 22px;
+  }
+
+  #controls select,
+  #controls input[type="text"] {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #generate {
+    flex: 1 1 100%;
+    margin-left: 0;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 380px) {
+  #controls label { flex: 1 1 100%; }
+}
